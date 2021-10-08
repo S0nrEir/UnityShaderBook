@@ -81,17 +81,17 @@
 			return fixed4(c.rgb,1.0);
 		}
 
+		ENDCG
+
 		Pass
 		{
 			CGPROGRAM
 
-			#pragma vertext vert
+			#pragma vertex  vert
 			#pragma fragment frag
 
 			ENDCG
 		}
-
-		ENDCG
 	}
 	FallBack Off
 }
