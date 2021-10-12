@@ -127,7 +127,11 @@
 		ENDCG
 
 		Pass
-		{
+		{	
+			ZTest Always
+			Cull Off
+			ZWrite Off
+
 			CGPROGRAM
 
 			#pragma vertex vert

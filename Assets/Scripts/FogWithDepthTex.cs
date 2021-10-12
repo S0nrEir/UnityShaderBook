@@ -109,7 +109,7 @@ public class FogWithDepthTex : PostEffectBase
     /// <summary>
     /// 雾效浓度
     /// </summary>
-    [Range( .0f, 3f )] private float _fogDensity = 1f;
+    [SerializeField] [Range( .0f, 3f )] private float _fogDensity = 1f;
 
     private Transform _cachedTransform = null;
     private Camera _camera = null;
