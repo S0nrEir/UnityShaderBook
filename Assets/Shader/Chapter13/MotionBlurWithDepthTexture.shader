@@ -60,6 +60,7 @@
 			float4 H = float4(i.uv.x * 2 - 1,i.uv.y * 2 - 1,d * 2 - 1, 1);
 			//之后通过乘以逆投影矩阵来得到该像素对应的世界坐标
 			float4 D = mul(_CurrViewProjectionInverseMTX,H);
+			//这里其实就是透视除法
 			float4 worldPos = D/D.w;
 			
 			float4 currPos = H;
@@ -81,17 +82,17 @@
 			return fixed4(c.rgb,1.0);
 		}
 
+		ENDCG
+
 		Pass
 		{
 			CGPROGRAM
 
-			#pragma vertext vert
+			#pragma vertex  vert
 			#pragma fragment frag
 
 			ENDCG
 		}
-
-		ENDCG
 	}
 	FallBack Off
 }
