@@ -16,8 +16,8 @@ public class FogWithDepthTex : PostEffectBase
             _camera.depthTextureMode |= DepthTextureMode.Depth;
             _fov = _camera.fieldOfView;
             _near = _camera.nearClipPlane;
-            _far = _camera.farClipPlane;
             _aspect = _camera.aspect;
+            _cachedCameraTran = _camera.transform;
         }
 
         //_cachedTransform = transform;
@@ -31,22 +31,46 @@ public class FogWithDepthTex : PostEffectBase
             return;
         }
 
+        var fov = _camera.fieldOfView;
+        var near = _camera.nearClipPlane;
+        var aspect = _camera.aspect;
+
         //单位矩阵
         Matrix4x4 frustumCorners = Matrix4x4.identity;
-        float halfHeight = _near * Mathf.Tan( _fov * .5f * Mathf.Deg2Rad );
-        Vector3 toRight = transform.right * halfHeight * _aspect;
-        Vector3 toTop = transform.up * halfHeight;
+        //var halfHeight = _near * Mathf.Tan( _fov * 0.5f * Mathf.Deg2Rad );
+        var halfHeight = near * Mathf.Tan( fov * 0.5f * Mathf.Deg2Rad );
+
+        Vector3 toRight = _cachedCameraTran.right * halfHeight * aspect;
+        Vector3 toTop = _cachedCameraTran.up * halfHeight;
 
         //计算近裁面四个角对应的向量，然后把结果传给shader
-        var topLeft     = GetDegree( 1, toRight, toTop );
-        var topRight    = GetDegree( 2, toRight, toTop );
-        var bottomLeft  = GetDegree( 3, toRight, toTop );
-        var bottomRight = GetDegree( 4, toRight, toTop );
+        //var topLeft     = GetDegree( 1, toRight, toTop );
+        //var topRight    = GetDegree( 2, toRight, toTop );
+        //var bottomLeft  = GetDegree( 3, toRight, toTop );
+        //var bottomRight = GetDegree( 4, toRight, toTop );
+
+        var topLeft = _cachedCameraTran.forward * near + toTop - toRight;
+        var scale = topLeft.magnitude / near;
+
+        topLeft.Normalize();
+        topLeft *= scale;
+
+        var topRight = _cachedCameraTran.forward * near + toTop + toRight;
+        topRight.Normalize();
+        topRight *= scale;
+
+        var bottomLeft = _cachedCameraTran.forward * near - toTop - toRight;
+        bottomLeft *= scale;
+
+        var bottomRight = _cachedCameraTran.forward * near - toTop + toRight;
+        bottomRight *= scale;
 
         frustumCorners.SetRow( 0, bottomLeft );
         frustumCorners.SetRow( 1, bottomRight );
         frustumCorners.SetRow( 2, topRight );
         frustumCorners.SetRow( 3, topLeft );
+
+        FogMaterial.SetMatrix( "_FrustumConersRay", frustumCorners );
 
         FogMaterial.SetFloat( "_FogDensity",_fogDensity);
         FogMaterial.SetColor( "_FogColor", _fogColor );
@@ -56,6 +80,7 @@ public class FogWithDepthTex : PostEffectBase
         Graphics.Blit( source, destination, FogMaterial );
     }
 
+    #region noUse
     /// <summary>
     /// 1topLeft 2topRight 3bottomLeft 4bottomRight
     /// </summary>
@@ -65,19 +90,19 @@ public class FogWithDepthTex : PostEffectBase
         switch(pos)
         {
             case 1:
-                res = transform.forward * _near + toTop - toRight;
+                res = _cachedCameraTran.forward * _near + toTop - toRight;
                 break;
 
             case 2:
-                res = transform.forward * _near + toTop + toRight;
+                res = _cachedCameraTran.forward * _near + toTop + toRight;
                 break;
 
             case 3:
-                res = transform.forward * _near - toTop - toRight;
+                res = _cachedCameraTran.forward * _near - toTop - toRight;
                 break;
 
             case 4:
-                res = transform.forward * _near - toTop + toRight;
+                res = _cachedCameraTran.forward * _near - toTop + toRight;
                 break;
         }
         //scale
@@ -85,11 +110,13 @@ public class FogWithDepthTex : PostEffectBase
         res.Normalize();
         return res;
     }
+    #endregion
 
     private float _fov = 0;
     private float _near = 0;
-    private float _far = 0;
     private float _aspect = 0;
+
+    private Transform _cachedCameraTran = null;
 
     /// <summary>
     /// 雾效结束位置
@@ -111,7 +138,6 @@ public class FogWithDepthTex : PostEffectBase
     /// </summary>
     [SerializeField] [Range( .0f, 3f )] private float _fogDensity = 1f;
 
-    private Transform _cachedTransform = null;
     private Camera _camera = null;
 
     public Material FogMaterial

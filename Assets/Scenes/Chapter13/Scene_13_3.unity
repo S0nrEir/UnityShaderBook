@@ -208,8 +208,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _fogEnd: 2
-  _fogStart: 0
-  _fogColor: {r: 0.31132078, g: 0.31132078, b: 0.31132078, a: 1}
+  _fogStart: 4.1
+  _fogColor: {r: 0.3140514, g: 0.7075472, b: 0.24363652, a: 1}
+  _fogDensity: 1
   _fogShader: {fileID: 4800000, guid: afe3d91faeedd2b4f92ece8a0f8699a5, type: 3}
 --- !u!1 &727078890
 GameObject:
