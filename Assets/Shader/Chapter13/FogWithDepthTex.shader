@@ -1,4 +1,5 @@
-﻿Shader "ShaderBook/Chapter13/FogWithDepthTex" 
+﻿//雾效shader
+Shader "ShaderBook/Chapter13/FogWithDepthTex" 
 {
 	Properties 
 	{
@@ -23,7 +24,7 @@
 		//纹素采样
 		half4 _MainTex_TexelSize;
 		//深度纹理
-		sampler2D _DepthTexture;
+		sampler2D _CameraDepthTexture;
 		//雾效浓度
 		half _FogDensity;
 		//雾效颜色
@@ -35,9 +36,9 @@
 
 		struct v2f
 		{
-			float4 pos : SV_POSITION;
-			half2 uv : TEXCOORD0;
-			half2 uv_depth : TEXCOORD1;
+			float4 pos 			  : SV_POSITION;
+			half2 uv 			  : TEXCOORD0;
+			half2 uv_depth 		  : TEXCOORD1;
 			float4 interpolateRay : TEXCOORD2;
 		};
 
@@ -59,6 +60,7 @@
 				idx = 3;
 
 			#if UNITY_UV_STARTS_AT_TOP
+			if (_MainTex_TexelSize.y < 0)
 				idx = 3 - idx;
 			#endif
 
@@ -66,7 +68,7 @@
 		}
 
 		//vertex:
-		v2f vert(appdata_img v)
+		v2f fog_vert(appdata_img v)
 		{
 			v2f o;
 			o.pos = UnityObjectToClipPos(v.vertex);
@@ -85,33 +87,16 @@
 			o.interpolateRay = _FrustumConersRay[idx];
 
 			return o;
-
-			// int idx = 0;
-			// //左下
-			// if(v.texcoord.x < 0.5 && v.texcoord.y < 0.5)
-			// 	idx = 0;
-			// //右下
-			// else if(v.texcoord.x > 0.5 && v.texcoord.y < 0.5)
-			// 	idx = 1;
-			// //右上
-			// else if(v.texcoord.x > 0.5 && v.texcoord.y > 0.5)
-			// 	idx = 2;
-			// //左上
-			// else
-			// 	idx = 3;
-			// #if UNITY_UV_STARTS_AT_TOP
-			// 	idx = 3 - idx;
-			// #endif
-
 		}
 
 		//fragment
-		fixed4 frag(v2f i) : SV_Target
+		fixed4 fog_frag(v2f i) : SV_Target
 		{
 			//重建像素在世界空间下的位置
 			//对深度贴图采样，获取线性深度
 			//LinearEyeDepth：视角空间下的线性深度值
-			float linearDepth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_DepthTexture,i.uv_depth));
+			// float linearDepth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture,i.uv_depth));
+			float linearDepth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture,i.uv_depth));
 			//映射世界坐标
 			float3 worldPos = _WorldSpaceCameraPos + linearDepth * i.interpolateRay;
 
@@ -120,7 +105,7 @@
 
 			//最终呈现颜色
 			fixed4 finalColor = tex2D(_MainTex,i.uv); 
-			finalColor.rgb = lerp(finalColor.rgb,_FogColor.rgb,fogDensity);
+			finalColor.rgb = lerp(finalColor.rgb , _FogColor.rgb , fogDensity);
 			return finalColor;
 		}
 
@@ -134,8 +119,8 @@
 
 			CGPROGRAM
 
-			#pragma vertex vert
-			#pragma fragment frag
+			#pragma vertex fog_vert
+			#pragma fragment fog_frag
 
 			ENDCG
 		}
