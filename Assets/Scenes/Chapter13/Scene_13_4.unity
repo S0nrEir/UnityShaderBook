@@ -209,10 +209,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _sensitivityNormals: 1
   _sensitivityDepth: 1
-  _sampleDistance: 1
+  _sampleDistance: 0.5
   _backGroundColor: {r: 1, g: 1, b: 1, a: 1}
-  _edgeColor: {r: 0, g: 0, b: 0, a: 1}
-  _edgesOnly: 0
+  _edgeColor: {r: 0.2583454, g: 0.8396226, b: 0, a: 1}
+  _edgesOnly: 1
   _edgeDetectShader: {fileID: 4800000, guid: d3bd67bdce62eb24988d3126312f135a, type: 3}
 --- !u!1 &727078890
 GameObject:
