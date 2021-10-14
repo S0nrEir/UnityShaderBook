@@ -40,8 +40,10 @@ Shader "ShaderBook/Chapter13/EdgeDetectNormalAndDepth"
 			v2f o;
 			o.pos = UnityObjectToClipPos(v.vertex);
 			half2 uv = v.texcoord;
+			//0存放的是纹理本身的uv坐标
 			o.uv[0] = uv;
 
+			//平台差异化处理
 			#if UNITY_UV_STARTS_AT_TOP
 				if(_MainTex_TexelSize.y < 0)
 					uv.y = 1 - uv.y;
@@ -56,17 +58,23 @@ Shader "ShaderBook/Chapter13/EdgeDetectNormalAndDepth"
 			return o;
 		}
 
-		half check_same(half4 center,half4 sample)
+		//检查当前uv坐标点是否存在一条边缘
+		//边缘检测为真，返回0，否则返回1
+		half is_uv_contains_edge(half4 center,half4 sample)
 		{
+			//首先得到两个采样点的深度和法线
+			//在这里并不需要解码获得真正的法线信息
 			half2 center_normal = center.xy;
 			float center_depth = DecodeFloatRG(center.zw);
 
 			half2 sample_normal = sample.xy;
 			float sample_depth = DecodeFloatRG(sample.zw);
 
+			//获取法线差值
 			half2 diff_normal = abs(center_normal - sample_normal) * _Sensitivity.x;
 			int is_same_normal = (diff_normal.x + diff_normal.y) < 0.1;
 
+			//获取深度差值
 			float diff_depth = abs(center_depth - sample_depth) * _Sensitivity.y;
 			int is_same_depth = diff_depth < 0.1 * center_depth;
 
@@ -76,20 +84,29 @@ Shader "ShaderBook/Chapter13/EdgeDetectNormalAndDepth"
 		//fragment
 		fixed4 frag(v2f i) : SV_Target
 		{
+			//左上右上左下右下
+			//采样四个相邻纹理坐标的深度和法线
 			half4 sample_1 = tex2D(_CameraDepthNormalsTexture, i.uv[1]);//1,1
 			half4 sample_2 = tex2D(_CameraDepthNormalsTexture, i.uv[2]);//-1,-1
 			half4 sample_3 = tex2D(_CameraDepthNormalsTexture, i.uv[3]);//-1,1
 			half4 sample_4 = tex2D(_CameraDepthNormalsTexture, i.uv[4]);//1,-1
 
+			//默认边缘深度
 			half edge = 1.0;
 
-			edge *= check_same(sample_1,sample_2);
-			edge *= check_same(sample_3,sample_4);
+			//右上和左下
+			edge *= is_uv_contains_edge(sample_1,sample_2);
+			//左上和右下
+			edge *= is_uv_contains_edge(sample_3,sample_4);
 
+			//插值返回边缘颜色或采样颜色
+			// fixed4 with_edge_color = lerp(_EdgeColor, tex2D(_MainTex, i.uv[0]), edge);
+			// fixed4 only_edge_color = lerp(_EdgeColor, _BackGroundColor, edge);
+			// return lerp(with_edge_color, only_edge_color, _EdgesOnly); 
+
+			//以下是不包含背景色的版本
 			fixed4 with_edge_color = lerp(_EdgeColor, tex2D(_MainTex, i.uv[0]), edge);
-			fixed4 only_edge_color = lerp(_EdgeColor, _BackGroundColor, edge);
-
-			return lerp(with_edge_color, only_edge_color, _EdgesOnly); 
+			return with_edge_color;
 		}
 
 		ENDCG
