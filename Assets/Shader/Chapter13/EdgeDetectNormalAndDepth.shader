@@ -5,8 +5,8 @@ Shader "ShaderBook/Chapter13/EdgeDetectNormalAndDepth"
 	{
 		_MainTex ("Base (RGB)", 2D) = "white" {}
 		_EdgesOnly("Edges Only",Float) = 1.0
-		_EdgeColor("Edge Color",Color) = (0,0,0,0)
-		_BackGroundColor("BackGround Color",Color) = (0,0,0,0)
+		_EdgeColor("Edge Color",Color) = (0,0,0,1)
+		_BackGroundColor("BackGround Color",Color) = (1,1,1,1)
 		_SampleDistance("SampleDistance",Float) = 1.0
 		_Sensitivity("Sensitivity",Vector) = (1,1,1,1)
 	}
@@ -47,7 +47,7 @@ Shader "ShaderBook/Chapter13/EdgeDetectNormalAndDepth"
 					uv.y = 1 - uv.y;
 			#endif
 
-			//剩下四组坐标存储了使用robers算子时需要采样的纹理坐标，并且用distance控制采样距离
+			//剩下四组坐标存储了使用roberts算子时需要采样的纹理坐标，并且用distance控制采样距离
 			o.uv[1] = uv + _MainTex_TexelSize.xy * half2(1,1) * _SampleDistance;
 			o.uv[2] = uv + _MainTex_TexelSize.xy * half2(-1,-1) * _SampleDistance;
 			o.uv[3] = uv + _MainTex_TexelSize.xy * half2(-1,1) * _SampleDistance;
@@ -76,18 +76,18 @@ Shader "ShaderBook/Chapter13/EdgeDetectNormalAndDepth"
 		//fragment
 		fixed4 frag(v2f i) : SV_Target
 		{
-			half4 sample_1 = tex2D(_CameraDepthNormalsTexture,i.uv[1]);//1,1
-			half4 sample_2 = tex2D(_CameraDepthNormalsTexture,i.uv[2]);//-1,-1
-			half4 sample_3 = tex2D(_CameraDepthNormalsTexture,i.uv[3]);//-1,1
-			half4 sample_4 = tex2D(_CameraDepthNormalsTexture,i.uv[4]);//1,-1
+			half4 sample_1 = tex2D(_CameraDepthNormalsTexture, i.uv[1]);//1,1
+			half4 sample_2 = tex2D(_CameraDepthNormalsTexture, i.uv[2]);//-1,-1
+			half4 sample_3 = tex2D(_CameraDepthNormalsTexture, i.uv[3]);//-1,1
+			half4 sample_4 = tex2D(_CameraDepthNormalsTexture, i.uv[4]);//1,-1
 
 			half edge = 1.0;
 
-			edge *= check_same(sample_1,sample_3);
-			edge *= check_same(sample_2,sample_4);
+			edge *= check_same(sample_1,sample_2);
+			edge *= check_same(sample_3,sample_4);
 
-			fixed4 with_edge_color = lerp(_EdgeColor,tex2D(_MainTex,i.uv[0]),edge);
-			fixed4 only_edge_color = lerp(_BackGroundColor,tex2D(_MainTex,i.uv[0]),edge);
+			fixed4 with_edge_color = lerp(_EdgeColor, tex2D(_MainTex, i.uv[0]), edge);
+			fixed4 only_edge_color = lerp(_EdgeColor, _BackGroundColor, edge);
 
 			return lerp(with_edge_color, only_edge_color, _EdgesOnly); 
 		}
