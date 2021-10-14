@@ -189,7 +189,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 631685743}
   m_LocalRotation: {x: 0.14982788, y: -0.34425056, z: 0.055750255, w: 0.9251676}
-  m_LocalPosition: {x: 13.69, y: 7.48, z: -0.49}
+  m_LocalPosition: {x: 14.2, y: 7.48, z: -0.49}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -209,9 +209,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _sensitivityNormals: 1
   _sensitivityDepth: 1
-  _sampleDistance: 0.5
+  _sampleDistance: 1
   _backGroundColor: {r: 1, g: 1, b: 1, a: 1}
-  _edgeColor: {r: 0.2583454, g: 0.8396226, b: 0, a: 1}
+  _edgeColor: {r: 1, g: 1, b: 1, a: 1}
   _edgesOnly: 1
   _edgeDetectShader: {fileID: 4800000, guid: d3bd67bdce62eb24988d3126312f135a, type: 3}
 --- !u!1 &727078890
