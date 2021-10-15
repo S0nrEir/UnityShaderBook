@@ -80,8 +80,8 @@ Shader "ShaderBook/Chapter14/ToonShading"
 
             CGPROGRAM
 
-            #pragma vertex vert
-            #pragma fragment frag
+            #pragma vertex vert_main_pass
+            #pragma fragment frag_main_pass
             #pragma multi_compile_fwdbase
 
             #include "UnityCG.cginc"
@@ -126,7 +126,7 @@ Shader "ShaderBook/Chapter14/ToonShading"
             };
 
             //vertex shader
-            v2f vert(a2v v)
+            v2f vert_main_pass(a2v v)
             {
                 v2f o;
 
@@ -142,7 +142,8 @@ Shader "ShaderBook/Chapter14/ToonShading"
             }
 
             //fragment shader
-            float4 frag(v2f i) : SV_Target
+            //二次元着色，这里是重点
+            float4 frag_main_pass(v2f i) : SV_Target
             {
                 fixed3 worldNormal = normalize(i.worldNormal);
                 fixed3 worldLightDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
@@ -154,15 +155,21 @@ Shader "ShaderBook/Chapter14/ToonShading"
                 fixed3 albedo = c.rgb * _Color.rgb;
                 fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo;
 
-                //计算阴影
+                //计算阴影和光照衰减相乘的值作为衰减值，无遮挡的地方是没有阴影的，也就是1
                 UNITY_LIGHT_ATTENUATION(atten, i, i.worldPos);
+
+                //背面为负数，90°顶面为0，正面为正数
                 fixed diff = dot(worldNormal,worldLightDir);
                 diff = (diff * 0.5 + 0.5) * atten;
 
                 fixed3 diffuse = _LightColor0.rgb * albedo * tex2D(_Ramp,float2(diff,diff)).rgb;
+                //fixed3 diffuse = _LightColor0.rgb * albedo;
 
+                //顶面和正面的高光效果
                 fixed spec = dot(worldNormal,worldHalfDir);
+                //fixed spec = dot(worldNormal,worldViewDir);
                 fixed w = fwidth(spec) * 2.0;
+                // fixed w = spec * 2.0;
 
                 fixed3 specular = _Specular.rgb * lerp(0,1,smoothstep(-w, w, spec + _SpecularScale - 1)) * step(0.0001, _SpecularScale);
 
