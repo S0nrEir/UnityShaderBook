@@ -166,6 +166,7 @@ Shader "ShaderBook/Chapter15/Dissovle"
                 fixed3 burn = tex2D(_BurnMap, i.uvBurnMap).rgb;
                 clip(burn.r - _BurnAmount);
 
+                //把片元着色器的结果投射到深度图中
                 SHADOW_CASTER_FRAGMENT(i)
             }
 
