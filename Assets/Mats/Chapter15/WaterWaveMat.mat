@@ -92,13 +92,13 @@ Material:
     - _SpecularScale: 0.0248
     - _SrcBlend: 1
     - _UVSec: 0
-    - _WaveXSpeed: 0.037
-    - _WaveYSpeed: -0.017
+    - _WaveXSpeed: 0.1
+    - _WaveYSpeed: 0
     - _ZWrite: 1
     m_Colors:
     - _BurnFirstColor: {r: 1, g: 0.3107329, b: 0.033018887, a: 0}
     - _BurnSecondColor: {r: 1, g: 0.9430117, b: 0.7311321, a: 0}
-    - _Color: {r: 0.4198113, g: 0.8675857, b: 1, a: 1}
+    - _Color: {r: 0.9433962, g: 0.9433962, b: 0.9433962, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _Specular: {r: 0.4056604, g: 0.4056604, b: 0.4056604, a: 1}
