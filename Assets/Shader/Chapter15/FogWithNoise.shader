@@ -1,168 +1,131 @@
 ﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
-//水波效果
-Shader "ShaderBook/Chapter15/WaterWave"
+//基于噪点图的全局雾效
+Shader "ShaderBook/Chapter15/FogWitNoise"
 {
     Properties
     {
-        //水面颜色
-        _Color("Main Color",Color) = (0, 0.15, 0.115, 1)
-        //主纹理
-        _MainTex("Main Tex",2D) = "white"{}
-        //水波噪点法线图
-        _WaveMap("Wave Map",2D) = "white"{}
-        //用于菲尼尔反射的cubeMap
-        _CubeMap("Cube Map",Cube) = "_Skybox"{}
-        //水波速度
-        _WaveXSpeed("Wave X Speed",Range(-0.1,0.1)) = 0.01
-        _WaveYSpeed("Wave Y Speed",Range(-0.1,0.1)) = 0.01
-        //折射发生时图像的扭曲程度
-        _Distortion("Distortion",Range(0,100)) = 10
+    	_MainTex("Main Tex",2D) = "white"{}
+        //雾效浓度
+        _FogDensity("Fog Density",Float) = 1.0
+        //雾效颜色
+        _FogColor("Fog Color",Color) = (1,1,1,1)
+        //雾效起始高度
+        _FogStart("Fog Start",Float) = 0.0
+        _FogEnd("Fog End",Float) = 1.0
+        //噪点图
+        _NoiseTex("Noise Tex",2D) = "white"{}
+
+        _FogXSpeed("Fox X Speed",Float) = 0.1
+        _FogYSpeed("Fox Y Speed",Float) = 0.1
+        //噪点系数
+        _NoiseAmount("Noise Amount",Float) = 1.0
     }
 
     SubShader
     {
-        Tags
-        {
-            "Queue" = "Transparent"
-            "RenderType" = "Opaque"
-        }
+    	CGINCLUDE
+    	#include "UnityCG.cginc"
 
-        GrabPass{"_RefractionTex"}
-        //dissolve
-        Pass
-        {
-            Tags
-            {
-                "LightMode" = "ForwardBase"
-            }
+    	float4x4 _FrustumCornersRay;
 
-            CGPROGRAM
+    	sampler2D _MainTex;
+    	half4 	  _MainTex_TexelSize;
+    	sampler2D _CameraDepthTexture;
+    	half 	  _FogDensity;
+    	fixed4 	  _FogColor;
+    	float 	  _FogStart;
+    	float 	  _FogEnd;
+    	sampler2D _NoiseTex;
+    	half	  _FogXSpeed;
+    	half	  _FogYSpeed;
+    	half	  _NoiseAmount;
 
-            #include "UnityCG.cginc"
-            #include "Lighting.cginc"
-            //#include "AutoLight.cginc"
+		struct v2f
+		{
+			float4 pos 			  : SV_POSITION;
+			half2 uv 			  : TEXCOORD0;
+			half2 uv_depth 		  : TEXCOORD1;
+			float4 interpolateRay : TEXCOORD2;
+		};
 
-            #pragma vertex water_wave_vert
-            #pragma fragment water_wave_frag
-            #pragma multi_compile_fwdbase
+		int get_frustum_corner_index(half2 texcoord)
+		{
+			//unity中纹理坐标的(0,0)对应左下角，(1,1)对应右上角
+			int idx = 0;
+			//左下
+			if(texcoord.x < 0.5 && texcoord.y < 0.5)
+				idx = 0;
+			//右下
+			else if(texcoord.x > 0.5 && texcoord.y < 0.5)
+				idx = 1;
+			//右上
+			else if(texcoord.x > 0.5 && texcoord.y > 0.5)
+				idx = 2;
+			//左上
+			else
+				idx = 3;
 
-            fixed4      _Color;
-            sampler2D   _MainTex;
-            float4      _MainTex_ST;
-            sampler2D   _WaveMap;
-            float4      _WaveMap_ST;
-            samplerCUBE _CubeMap;
-            fixed       _WaveXSpeed;
-            fixed       _WaveYSpeed;
-            float       _Distortion;
-            sampler2D   _RefractionTex;
-            float4      _RefractionTex_TexelSize;//采样做坐标偏移时需要用到这玩意
+			#if UNITY_UV_STARTS_AT_TOP
+			if (_MainTex_TexelSize.y < 0)
+				idx = 3 - idx;
+			#endif
 
+			return idx;
+		}
 
-            struct a2v
-            {
-                float4 vertex   : POSITION;
-                float3 normal   : NORMAL;
-                float4 tangent  : TANGENT;
-                float4 texcoord : TEXCOORD0;
+    	//vert
+    	v2f fog_noise_vert(appdata_img v)
+    	{
+    		v2f o;
+    		o.pos = UnityObjectToClipPos(v.vertex);
 
-            };
+    		o.uv = v.texcoord;
+    		o.uv_depth = v.texcoord;
 
-            struct v2f
-            {
-                float4 pos      : SV_POSITION;
-                float4 scr_pos  : TEXCOORD0;
-                float4 uv       : TEXCOORD1;
-                float4 T_to_W_0 : TEXCOORD2;
-                float4 T_to_W_1 : TEXCOORD3;
-                float4 T_to_W_2 : TEXCOORD4;
-            };
+    		#if UNITY_UV_STARTS_AT_TOP
+    			if(_MainTex_TexelSize.y <0)
+    				o.uv_depth.y = o.uv_depth.y;
+    		#endif
 
-            v2f water_wave_vert(a2v v)
-            {
-                v2f o;
-                o.pos = UnityObjectToClipPos(v.vertex);
+    		int row = get_frustum_corner_index(v.texcoord);
+    		o.interpolateRay = _FrustumCornersRay[row];
 
-                //得到对应被抓取屏幕图像的采样坐标(UnityCG.cginc)
-                //视口空间坐标变换到屏幕坐标
-                o.scr_pos = ComputeGrabScreenPos(o.pos);
+    		return o;
+    	}
 
-                o.uv.xy = TRANSFORM_TEX(v.texcoord, _MainTex);
-                o.uv.zw = TRANSFORM_TEX(v.texcoord,_WaveMap);
+    	//frag
+    	fixed4 fog_noise_frag(v2f i):SV_Target
+    	{
+    		//获取线性深度
+    		float linear_depth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture,i.uv_depth));
+    		//当前像素点在世界空间的位置
+    		float3 world_pos = _WorldSpaceCameraPos + linear_depth * i.interpolateRay.xyz;
+    		float2 speed = _Time.y * float2(_FogXSpeed,_FogYSpeed);
+    		//采样噪点图颜色
+    		float noise = (tex2D(_NoiseTex,i.uv + speed).r - 0.5) * _NoiseAmount;
+        	float fog_density = (_FogEnd - world_pos.y) / (_FogEnd - _FogStart);
+        	fog_density = saturate(fog_density * _FogDensity * (1 + noise));
+        	fixed4 final_color = tex2D(_MainTex,i.uv);
+        	final_color.rgb = lerp(final_color.rgb,_FogColor.rgb,fog_density);
 
-                //获取顶点在世界空间下的坐标位置，法线方向，切线方向，副切线方向
-                float3 world_pos = mul(unity_ObjectToWorld,v.vertex).xyz;
-                fixed3 world_normal = UnityObjectToWorldNormal(v.normal);
-                fixed3 world_tangent = UnityObjectToWorldDir(v.tangent.xyz);
-                fixed3 world_binormal = cross(world_normal, world_tangent) * v.tangent.w;
+        	return final_color;
+    	}
 
-                //构建TBN矩阵
-                o.T_to_W_0 = float4(world_tangent.x, world_binormal.x, world_normal.x, world_pos.x);
-                o.T_to_W_1 = float4(world_tangent.y, world_binormal.y, world_normal.y, world_pos.y);
-                o.T_to_W_2 = float4(world_tangent.z, world_binormal.z, world_normal.z, world_pos.z);
+    	ENDCG
 
-                return o;
-            }
+    	Pass
+    	{    		
+    		ZTest Always
+    		ZWrite Off
+    		Cull Off
 
-            fixed4 water_wave_frag(v2f i) : SV_Target
-            {
-                // float3 world_pos = float3(i.T_to_W_0.w, i.T_to_W_1.w, i.T_to_W_2.w);
-                //返回点到相机的方向
-                //获取点到视角方向
-                // fixed3 view_direction = normalize(UnityWorldSpaceViewDir(world_pos));
+    		CGPROGRAM
 
-                //点到视角方向
-                fixed3 view_direction = normalize(UnityWorldSpaceViewDir
-                    (
-                        float3
-                        (
-                            i.T_to_W_0.w, 
-                            i.T_to_W_1.w, 
-                            i.T_to_W_2.w
-                            )
-                        )
-                    );
+    		#pragma vertex fog_noise_vert
+    		#pragma fragment fog_noise_frag
 
-                //_Time：自场景加载开始经过的时间
-                float2 speed = _Time.y * float2(_WaveXSpeed, _WaveYSpeed);
-                //float2 speed = _SinTime.w * float2(_WaveXSpeed, _WaveYSpeed);
-                //采样水波噪点图
-                //speed作为偏移
-                fixed3 bump_1 = UnpackNormal(tex2D(_WaveMap, i.uv.zw + speed)).rgb;
-                fixed3 bump_2 = UnpackNormal(tex2D(_WaveMap, i.uv.zw - speed)).rgb;
-                fixed3 bump = normalize(bump_1 + bump_2);
-
-                //这里计算出的偏移是为了做菲涅尔反射b
-                float2 offset = bump.xy * _Distortion * _RefractionTex_TexelSize.xy;
-                //float2 offset = (0.0, 0.0);
-                //z是为了模拟深度
-                i.scr_pos.xy = offset * i.scr_pos.z + i.scr_pos.xy;
-                //折射颜色
-                fixed3 refr_color = tex2D(_RefractionTex,i.scr_pos.xy / i.scr_pos.w).rgb;
-                //fixed3 refr_color = (0.5,  0.5, 0.5);
-
-                //把法线变到世界空间下
-                bump = normalize(half3(
-                                        dot(i.T_to_W_0.xyz,bump),
-                                        dot(i.T_to_W_1.xyz,bump),
-                                        dot(i.T_to_W_2.xyz,bump)
-                                      )
-                                );
-
-                fixed4 tex_color = tex2D(_MainTex,i.uv.xy + speed);
-                //计算反射
-                fixed3 refl_direction = reflect(-view_direction, bump);
-                fixed3 refl_color = texCUBE(_CubeMap, refl_direction).rgb * tex_color.rgb * _Color.rgb;
-                fixed fresnel = pow(1 - saturate(dot(view_direction,bump)), 2);
-                fixed3 final_color = refl_color * fresnel + refr_color * (1 - fresnel);
-                // fixed3 final_color = fresnel + refr_color * (1 - fresnel);
-
-                return fixed4(final_color,1);
-                
-            }
-
-            ENDCG
-        }
+    		ENDCG
+    	}
     }
     FallBack Off
 }

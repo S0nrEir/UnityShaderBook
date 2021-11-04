@@ -38,6 +38,7 @@ public class FogWithNoise : PostEffectBase
         Vector3 toRight = cached_camera_tran.right * halfHeight * _aspect;
         Vector3 toTop   = cached_camera_tran.up * halfHeight;
 
+        //计算近裁面的四个角
         var topLeft = cached_camera_tran.forward * _near + toTop - toRight;
         var scale = topLeft.magnitude / _near;
 
