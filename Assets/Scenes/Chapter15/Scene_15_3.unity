@@ -210,10 +210,10 @@ MonoBehaviour:
   noise_amount: 1
   fog_y_speed: 0.1
   fog_x_speed: 0.1
-  noise_tex: {fileID: 0}
-  fog_end: 0
-  fog_start: 0
-  fog_density: 1
+  noise_tex: {fileID: 2800000, guid: 4bf58ac98251b7e42b0b5315fb8e3fc1, type: 3}
+  fog_end: 7.82
+  fog_start: -19.4
+  fog_density: 2.32
   _fogColor: {r: 1, g: 1, b: 1, a: 1}
   fog_shader: {fileID: 4800000, guid: 1a571673b4b724048882339c0d8d8da2, type: 3}
 --- !u!1 &727078890

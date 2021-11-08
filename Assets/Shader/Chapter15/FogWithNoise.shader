@@ -103,13 +103,17 @@ Shader "ShaderBook/Chapter15/FogWitNoise"
     		float3 world_pos = _WorldSpaceCameraPos + linear_depth * i.interpolateRay.xyz;
     		float2 speed = _Time.y * float2(_FogXSpeed,_FogYSpeed);
     		//采样噪点图颜色
-    		float noise = (tex2D(_NoiseTex,i.uv + speed).r - 0.5) * _NoiseAmount;
+    		// float noise = (tex2D(_NoiseTex,i.uv + speed).r - 0.5) * _NoiseAmount;
+            //减去0.5是为了让采样贴图不至于太亮（雾效太浓）
+            float noise = (tex2D(_NoiseTex,i.uv + speed).b - 0.5) * _NoiseAmount;
         	float fog_density = (_FogEnd - world_pos.y) / (_FogEnd - _FogStart);
         	fog_density = saturate(fog_density * _FogDensity * (1 + noise));
         	fixed4 final_color = tex2D(_MainTex,i.uv);
         	final_color.rgb = lerp(final_color.rgb, _FogColor.rgb, fog_density);
 
-        	return final_color;
+            return final_color;
+
+            //return fixed4(_FogColor.rgb, 1);
     	}
 
     	ENDCG

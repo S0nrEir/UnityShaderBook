@@ -64,7 +64,7 @@ public class FogWithNoise : PostEffectBase
 
         material.SetMatrix( "_FrustumCornersRay", frustum_corners );
         material.SetFloat( "_FogDensity", fog_density );
-        material.SetColor( "_ForColor", _fogColor );
+        material.SetColor( "_FogColor", _fogColor );
         material.SetFloat( "_FogStart", fog_start );
         material.SetFloat( "_FogEnd", fog_end );
 
