@@ -65,6 +65,7 @@ Shader "ShaderBook/Chapter15/FogWitNoise"
 			else
 				idx = 3;
 
+            //DirectX平台差异化处理
 			#if UNITY_UV_STARTS_AT_TOP
 			if (_MainTex_TexelSize.y < 0)
 				idx = 3 - idx;
@@ -106,7 +107,7 @@ Shader "ShaderBook/Chapter15/FogWitNoise"
         	float fog_density = (_FogEnd - world_pos.y) / (_FogEnd - _FogStart);
         	fog_density = saturate(fog_density * _FogDensity * (1 + noise));
         	fixed4 final_color = tex2D(_MainTex,i.uv);
-        	final_color.rgb = lerp(final_color.rgb,_FogColor.rgb,fog_density);
+        	final_color.rgb = lerp(final_color.rgb, _FogColor.rgb, fog_density);
 
         	return final_color;
     	}
@@ -115,9 +116,9 @@ Shader "ShaderBook/Chapter15/FogWitNoise"
 
     	Pass
     	{    		
-    		ZTest Always
-    		ZWrite Off
-    		Cull Off
+    		// ZTest Always
+    		// ZWrite Off
+    		// Cull Off
 
     		CGPROGRAM
 
