@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{90859E49-38CD-48BA-6558-20E4D1423903}</ProjectGuid>
+    <ProjectGuid>{75BCE5E5-4146-EEA8-2B32-08840D138EBD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -65,10 +65,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\BrightnessSaturationAndContrast.cs" />
+    <Compile Include="Assets\Scripts\BumpSpecualrController.cs" />
+    <Compile Include="Assets\Scripts\DissolveController.cs" />
     <Compile Include="Assets\Scripts\EdgeDetection.cs" />
+    <Compile Include="Assets\Scripts\EdgeDetectNormalAndDepth.cs" />
+    <Compile Include="Assets\Scripts\FogWithDepthTex.cs" />
+    <Compile Include="Assets\Scripts\FogWithNoise.cs" />
     <Compile Include="Assets\Scripts\GaussianBlur.cs" />
     <Compile Include="Assets\Scripts\MorionBlurDepthTex.cs" />
     <Compile Include="Assets\Scripts\MotionBlur.cs" />
+    <Compile Include="Assets\Scripts\NRP_Controller.cs" />
     <Compile Include="Assets\Scripts\plugin\Bloom.cs" />
     <Compile Include="Assets\Scripts\plugin\Rotating.cs" />
     <Compile Include="Assets\Scripts\plugin\SetPropertyAttribute.cs" />
@@ -82,19 +88,23 @@
     <None Include="Assets\Shader\Chapter12\MotionBlur.shader" />
     <None Include="Assets\Shader\Mine\Petrify.shader" />
     <None Include="Assets\Shader\Chapter12\EdgeDetection_Demo.shader" />
+    <None Include="Assets\Shader\Chapter15\FogWithNoise.shader" />
     <None Include="Assets\Shader\Chapter10\Chapter10_Refraction.shader" />
     <None Include="Assets\Shader\Common\SingleTexture.shader" />
     <None Include="Assets\Shader\Chapter13\MotionBlurWithDepthTexture.shader" />
     <None Include="Assets\Shader\Chapter8And9\Chapter_9_ForwardRendering.shader" />
     <None Include="Assets\Shader\Chapter11\ScrollingBackground.shader" />
+    <None Include="Assets\Shader\Chapter15\WaterWave.shader" />
     <None Include="Assets\Shader\Chapter8And9\Chapter8_AlphaBlend.shader" />
     <None Include="Assets\Shader\Chapter12\BrightnessSaturaionAndContrast.shader" />
     <None Include="Assets\Shader\Common\BumpedSpecular.shader" />
     <None Include="Assets\Shader\Chapter8And9\Chapter9_AlphaTestWithShadow.shader" />
+    <None Include="Assets\Shader\Chapter14\ToonShading.shader" />
     <None Include="Assets\Shader\Chapter8And9\Chapter8_AlphaBlendBothSided.shader" />
     <None Include="Assets\Shader\Mine\Mobile Vertex Colored.shader" />
     <None Include="Assets\Shader\Chapter10\Chapter10_GlassRefraction.shader" />
     <None Include="Assets\Shader\Chapter8And9\Chapter_8_BlendOperation.shader" />
+    <None Include="Assets\Shader\Chapter13\Chapter13-EdgeDetectNormalAndDepth.shader" />
     <None Include="Assets\Shader\Common\BumpedDiffuse.shader" />
     <None Include="Assets\Shader\Chapter11\ImageSequenceAnimation.shader" />
     <None Include="Assets\Shader\Chapter12\Chapter12-GaussianBlur.shader" />
@@ -104,27 +114,31 @@
     <None Include="Assets\Shader\Chapter12\GaussianBlur.shader" />
     <None Include="Assets\Shader\Chapter8And9\Chapter9-AlphaBlendWithShadowBook.shader" />
     <None Include="Assets\Shader\Chapter11\Water.shader" />
+    <None Include="Assets\Shader\Chapter15\Dissovle.shader" />
     <None Include="Assets\Shader\Chapter12\EdgeDetection.shader" />
+    <None Include="Assets\Shader\Chapter13\Chapter13-FogWithDepthTexture.shader" />
     <None Include="Assets\Shader\Chapter10\Chapter10_Fresnel.shader" />
     <None Include="Assets\Shader\Chapter8And9\Chapter9_AlphaBlendWithShadow.shader" />
     <None Include="Assets\Shader\Chapter10\Chapter10_Reflection.shader" />
+    <None Include="Assets\Shader\Chapter13\EdgeDetectNormalAndDepth.shader" />
     <None Include="Assets\Shader\Chapter8And9\Chapter_9_Shadow.shader" />
+    <None Include="Assets\Shader\Chapter13\FogWithDepthTex.shader" />
     <None Include="Assets\Shader\Chapter12\Bloom.shader" />
     <None Include="Assets\Shader\Chapter11\BillBoard.shader" />
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>E:/UnityShader/UnityShader/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>E:/UnityShader/UnityShaderBook/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.PackageManagerUI.Editor">
-      <HintPath>E:/UnityShader/UnityShader/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
+      <HintPath>E:/UnityShader/UnityShaderBook/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>E:/UnityShader/UnityShader/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+      <HintPath>E:/UnityShader/UnityShaderBook/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>E:/UnityShader/UnityShader/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>E:/UnityShader/UnityShaderBook/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.DataPrivacy">
-      <HintPath>E:/UnityShader/UnityShader/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
+      <HintPath>E:/UnityShader/UnityShaderBook/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>D:/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -328,13 +342,13 @@
       <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor/UnityEngine.SpatialTracking.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.Editor">
-      <HintPath>E:/UnityShader/UnityShader/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
+      <HintPath>E:/UnityShader/UnityShaderBook/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.StandardEvents">
-      <HintPath>E:/UnityShader/UnityShader/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.StandardEvents.dll</HintPath>
+      <HintPath>E:/UnityShader/UnityShaderBook/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.StandardEvents.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.Tracker">
-      <HintPath>E:/UnityShader/UnityShader/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
+      <HintPath>E:/UnityShader/UnityShaderBook/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>D:/Unity/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>

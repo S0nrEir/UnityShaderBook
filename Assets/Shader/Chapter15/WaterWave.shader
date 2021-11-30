@@ -155,6 +155,7 @@ Shader "ShaderBook/Chapter15/WaterWave"
                 fixed3 refl_color = texCUBE(_CubeMap, refl_direction).rgb * tex_color.rgb * _Color.rgb;
                 fixed fresnel = pow(1 - saturate(dot(view_direction,bump)), 2);
                 fixed3 final_color = refl_color * fresnel + refr_color * (1 - fresnel);
+                // fixed3 final_color = fresnel + refr_color * (1 - fresnel);
 
                 return fixed4(final_color,1);
                 
